@@ -7,8 +7,7 @@
 #include <iostream>
 
 double windowHeight=800, windowWidth=600;
-double eyeX=5.0, eyeY=2.0, eyeZ=15.0, refX = 0, refY=0,refZ=2;
-
+double eyeX=5.0, eyeY=3.0, eyeZ=15.0, refX = 0, refY=0,refZ=2;
 
 static GLfloat v_cube[8][3] =
 {
@@ -79,21 +78,101 @@ void drawCube1(GLfloat difX, GLfloat difY, GLfloat difZ, GLfloat ambX=0, GLfloat
     }
     glEnd();
 }
+
+
+void centerTable()
+{
+    // Table top
+    glPushMatrix();
+    glTranslatef(0, 0.4, 0);
+    glScalef(0.6, 0.05, 0.6); // Adjust scale as needed
+    drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
+
+    glPopMatrix();
+    
+    // Table legs
+    float legHeight = 0.35;
+    float legThickness = 0.05;
+    
+    // Front left leg
+    glPushMatrix();
+    glTranslatef(-0.25, 0.2, -0.25); // Adjust position as needed
+    glScalef(legThickness, legHeight, legThickness); // Adjust scale as needed
+    drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
+    glPopMatrix();
+    
+    // Front right leg
+    glPushMatrix();
+    glTranslatef(0.25, 0.2, -0.25); // Adjust position as needed
+    glScalef(legThickness, legHeight, legThickness); // Adjust scale as needed
+    drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
+    glPopMatrix();
+    
+    // Back left leg
+    glPushMatrix();
+    glTranslatef(-0.25, 0.2, 0.25); // Adjust position as needed
+    glScalef(legThickness, legHeight, legThickness); // Adjust scale as needed
+    drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
+    glPopMatrix();
+    
+    // Back right leg
+    glPushMatrix();
+    glTranslatef(0.25, 0.2, 0.25); // Adjust position as needed
+    glScalef(legThickness, legHeight, legThickness); // Adjust scale as needed
+    drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
+    glPopMatrix();
+}
+
+
+
+void newBed()
+{
+    glPushMatrix();
+    glTranslatef(0,0,0.7);
+    
+    // Bed frame
+    glPushMatrix();
+    glTranslatef(0, 0, 0);
+    glScalef(0.8, 0.3, 1.2); // Adjust scale as needed
+    drawCube1(0.5, 0.7, 0.05, 0.25, 0.175, 0.025); // Adjust colors and dimensions
+    glPopMatrix();
+    
+     glPushMatrix();
+    glTranslatef(0.1,0.5,0.1);
+    // Mattress
+    glPushMatrix();
+    glTranslatef(0, 0.3, 0);
+    glScalef(0.75, 0.1, 1.1); // Adjust scale as needed
+    drawCube1(0.8, 0.8, 0.8, 0.4, 0.02, 0.35); // Adjust colors and dimensions
+    glPopMatrix();
+    
+    // Pillow 1
+    glPushMatrix();
+    glTranslatef(0.3, 0.7, 0.4); // Adjust position as needed
+    glScalef(0.27, 0.08, 0.2); // Adjust scale as needed
+    drawCube1(1.0, 1.0, 1.0, 0.2, 0.1, 0.3); // Adjust colors and dimensions
+    glPopMatrix();
+    
+    // Pillow 2
+    glPushMatrix();
+    glTranslatef(1.2, 0.7, 0.4); // Adjust position as needed
+    glScalef(0.27, 0.08, 0.2); // Adjust scale as needed
+    drawCube1(1.0, 1.0, 1.0, 0.2, 0.1, 0.3); // Adjust colors and dimensions
+    glPopMatrix();
+
+    glPopMatrix();
+
+
+    glPopMatrix();
+}
+
 void room()
 {
-    // // carpet
-    // //glColor3f(0.4, 0.1, 0.0);
-    // glPushMatrix();
-    // //glScalef(5, 0.1, 7);
-    // glTranslatef(3,-0.2,7);
-    // glScalef(1.3, 0.01, 1.7);
-    // drawCube1(0.4, 0.1, 0.0,  0.20, 0.05, 0.0);
-    // glPopMatrix();
-    
+   
     // right wall
     //glColor3f(1, 0.8, 0.5);
     glPushMatrix();
-    glTranslatef(-1.5,-1,.5);
+    glTranslatef(-5,-1,.5);
     glScalef(5, 2, 0.1);
     //drawCube1(1, 0.8, 0.5,  0.5,0.4,0.25);
     drawCube1(1, 0.8, 0.7,  0.5, 0.4, 0.35);
@@ -103,7 +182,7 @@ void room()
     //glColor3f(1, 0.8, 0.7);
     glPushMatrix();
     glTranslatef(-4.5,-1,0);
-    glScalef(1, 2, 5);
+    glScalef(0.2, 2, 5);
     drawCube1(1, 0.8, 0.7,  0.5, 0.4, 0.35);
     glPopMatrix();
     
@@ -118,7 +197,7 @@ void room()
     //ceiling
      //glColor3f(1.0, 0.9, 0.8);
      glPushMatrix();
-     glTranslatef(-2,5.1,0);
+     glTranslatef(-4.5,5.1,0);
      glScalef(5, 0.1, 7);
      drawCube1(1.0, 0.9, 0.8,  0.5,0.45,0.4);
      glPopMatrix();
@@ -146,6 +225,8 @@ void display(void){
     glEnable(GL_LIGHTING);
     glEnable( GL_LIGHT0);
     room();
+    newBed();
+    centerTable();
 
     glDisable(GL_LIGHTING);
     

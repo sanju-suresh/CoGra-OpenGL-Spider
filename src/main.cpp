@@ -407,7 +407,7 @@ void room()
     // right wall
     //glColor3f(1, 0.8, 0.5);
     glPushMatrix();
-    glTranslatef(-1.5,-1,.5);
+    glTranslatef(-5,-1,.5);
     glScalef(5, 2, 0.1);
     //drawCube1(1, 0.8, 0.5,  0.5,0.4,0.25);
     drawCube1(1, 0.8, 0.7,  0.5, 0.4, 0.35);
@@ -417,7 +417,7 @@ void room()
     //glColor3f(1, 0.8, 0.7);
     glPushMatrix();
     glTranslatef(-4.5,-1,0);
-    glScalef(1, 2, 5);
+    glScalef(0.2, 2, 5);
     drawCube1(1, 0.8, 0.7,  0.5, 0.4, 0.35);
     glPopMatrix();
     
@@ -432,7 +432,7 @@ void room()
     //ceiling
      //glColor3f(1.0, 0.9, 0.8);
      glPushMatrix();
-     glTranslatef(-2,5.1,0);
+     glTranslatef(-4.5,5.1,0);
      glScalef(5, 0.1, 7);
      drawCube1(1.0, 0.9, 0.8,  0.5,0.45,0.4);
      glPopMatrix();
@@ -678,6 +678,92 @@ void wardrobe()
     drawCube1(0.3,0.1,0, 0.15,0.05,0.0);
     glPopMatrix();
        
+}
+void newBed()
+{
+    glPushMatrix();
+    glTranslatef(0,0,0.7);
+    
+    // Bed frame
+    glPushMatrix();
+    glTranslatef(0, 0, 0);
+    glScalef(0.8, 0.3, 1.2); // Adjust scale as needed
+    drawCube1(0.5, 0.7, 0.05, 0.25, 0.175, 0.025); // Adjust colors and dimensions
+    glPopMatrix();
+    
+     glPushMatrix();
+    glTranslatef(0.1,0.5,0.1);
+    // Mattress
+    glPushMatrix();
+    glTranslatef(0, 0.3, 0);
+    glScalef(0.75, 0.1, 1.1); // Adjust scale as needed
+    drawCube1(0.8, 0.8, 0.8, 0.4, 0.02, 0.35); // Adjust colors and dimensions
+    glPopMatrix();
+    
+    // Pillow 1
+    glPushMatrix();
+    glTranslatef(0.3, 0.7, 0.4); // Adjust position as needed
+    glScalef(0.27, 0.08, 0.2); // Adjust scale as needed
+    drawCube1(1.0, 1.0, 1.0, 0.2, 0.1, 0.3); // Adjust colors and dimensions
+    glPopMatrix();
+    
+    // Pillow 2
+    glPushMatrix();
+    glTranslatef(1.2, 0.7, 0.4); // Adjust position as needed
+    glScalef(0.27, 0.08, 0.2); // Adjust scale as needed
+    drawCube1(1.0, 1.0, 1.0, 0.2, 0.1, 0.3); // Adjust colors and dimensions
+    glPopMatrix();
+
+    glPopMatrix();
+
+
+    glPopMatrix();
+}
+
+void centerTable()
+{
+    glPushMatrix();
+    glTranslatef(3, 0, 10);
+    // Table top
+    glPushMatrix();
+    glTranslatef(-0.7, 1.2, -1);
+    glScalef(0.6, 0.05, 0.6); // Adjust scale as needed
+    drawCube1(0.7, 0.55, 0.25, 0.25, 0.025, 0.25); // Adjust colors and dimensions
+
+    glPopMatrix();
+    
+    // Table legs
+    float legHeight = 0.35;
+    float legThickness = 0.05;
+    
+    // Front left leg
+    glPushMatrix();
+    glTranslatef(-0.4, 0.2, -0.4); // Adjust position as needed
+    glScalef(legThickness, legHeight, legThickness); // Adjust scale as needed
+    drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
+    glPopMatrix();
+    
+    // Front right leg
+    glPushMatrix();
+    glTranslatef(0.6, 0.2, -0.4); // Adjust position as needed
+    glScalef(legThickness, legHeight, legThickness); // Adjust scale as needed
+    drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
+    glPopMatrix();
+    
+    // Back left leg
+    glPushMatrix();
+    glTranslatef(-0.4, 0.2, 0.4); // Adjust position as needed
+    glScalef(legThickness, legHeight, legThickness); // Adjust scale as needed
+    drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
+    glPopMatrix();
+    
+    // Back right leg
+    glPushMatrix();
+    glTranslatef(0.6, 0.2, 0.4); // Adjust position as needed
+    glScalef(legThickness, legHeight, legThickness); // Adjust scale as needed
+    drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
+    glPopMatrix();
+    glPopMatrix();
 }
 
 void dressingTable()
@@ -1387,6 +1473,7 @@ void display(void)
     gluLookAt(eyeX,eyeY,eyeZ,  refX,refY,refZ,  0,1,0); //7,2,15, 0,0,0, 0,1,0
     
     glEnable(GL_LIGHTING);
+    glEnable( GL_LIGHT0);
     // lightOne();
     // lightTwo();
     // lampLight();
@@ -1396,8 +1483,11 @@ void display(void)
     // lamp();
     // LinkinParkPoster();
     // wallshelf();
+    newBed();
     // wardrobe();
-    cupboard();
+    // cupboard();
+
+    centerTable();
     // dressingTable();
     // Clock();
     // window();
