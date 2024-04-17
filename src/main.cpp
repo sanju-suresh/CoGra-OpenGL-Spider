@@ -1,7 +1,6 @@
 #include<GLES3/gl3.h>
 #include <GL/glut.h>
 #include<GL/gl.h>
-#include<GL/glu.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -1398,7 +1397,7 @@ void display(void)
     // LinkinParkPoster();
     // wallshelf();
     // wardrobe();
-    // cupboard();
+    cupboard();
     // dressingTable();
     // Clock();
     // window();
@@ -1656,7 +1655,7 @@ int main (int argc, char **argv)
     glEnable( GL_DEPTH_TEST );
     glEnable(GL_NORMALIZE);
  
-    glutReshapeFunc(fullScreen);
+    // glutReshapeFunc(fullScreen);
     glutDisplayFunc(display);
     glutKeyboardFunc(myKeyboardFunc);
     glutIdleFunc(animate);
