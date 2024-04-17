@@ -1,0 +1,13 @@
+go to project properties
+
+add to VC++ Directories > Include Directories the includes folder
+add to VC++ Directories > Library Directories the libraries folder
+
+add to Linker > Input > Additional Dependencies
+
+	soil2.lib
+	glew32.lib
+	glfw3.lib
+	opengl32.lib
+
+add glad.c and glew32.dll in the same folder as the main.cpp (use File Explorer and go to the project folder and find it)
