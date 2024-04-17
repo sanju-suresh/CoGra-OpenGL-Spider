@@ -1,0 +1,3 @@
+/media/Work/COLLEGE/sem 2/cogra/code/build/CMakeFiles/rebuild_cache.dir
+/media/Work/COLLEGE/sem 2/cogra/code/build/CMakeFiles/edit_cache.dir
+/media/Work/COLLEGE/sem 2/cogra/code/build/CMakeFiles/Test.dir
