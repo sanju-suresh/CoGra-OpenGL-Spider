@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-
-double windowHeight=800, windowWidth=600;
-double eyeX=5.0, eyeY=3.0, eyeZ=15.0, refX = 0, refY=0,refZ=2;
+using namespace std;
+double windowHeight=1080, windowWidth=720;
+double eyeX=4 , eyeY=3.0, eyeZ=11.5, refX = -5.5, refY=-11.5,refZ=-4;
 
 static GLfloat v_cube[8][3] =
 {
@@ -82,11 +82,13 @@ void drawCube1(GLfloat difX, GLfloat difY, GLfloat difZ, GLfloat ambX=0, GLfloat
 
 void centerTable()
 {
+    glPushMatrix();
+    glTranslatef(3, 0, 10);
     // Table top
     glPushMatrix();
-    glTranslatef(0, 0.4, 0);
+    glTranslatef(-0.7, 1.2, -1);
     glScalef(0.6, 0.05, 0.6); // Adjust scale as needed
-    drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
+    drawCube1(0.7, 0.55, 0.25, 0.25, 0.025, 0.25); // Adjust colors and dimensions
 
     glPopMatrix();
     
@@ -96,35 +98,33 @@ void centerTable()
     
     // Front left leg
     glPushMatrix();
-    glTranslatef(-0.25, 0.2, -0.25); // Adjust position as needed
+    glTranslatef(-0.4, 0.2, -0.4); // Adjust position as needed
     glScalef(legThickness, legHeight, legThickness); // Adjust scale as needed
     drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
     glPopMatrix();
     
     // Front right leg
     glPushMatrix();
-    glTranslatef(0.25, 0.2, -0.25); // Adjust position as needed
+    glTranslatef(0.6, 0.2, -0.4); // Adjust position as needed
     glScalef(legThickness, legHeight, legThickness); // Adjust scale as needed
     drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
     glPopMatrix();
     
     // Back left leg
     glPushMatrix();
-    glTranslatef(-0.25, 0.2, 0.25); // Adjust position as needed
+    glTranslatef(-0.4, 0.2, 0.4); // Adjust position as needed
     glScalef(legThickness, legHeight, legThickness); // Adjust scale as needed
     drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
     glPopMatrix();
     
     // Back right leg
     glPushMatrix();
-    glTranslatef(0.25, 0.2, 0.25); // Adjust position as needed
+    glTranslatef(0.6, 0.2, 0.4); // Adjust position as needed
     glScalef(legThickness, legHeight, legThickness); // Adjust scale as needed
     drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
     glPopMatrix();
+    glPopMatrix();
 }
-
-
-
 void newBed()
 {
     glPushMatrix();
@@ -165,6 +165,63 @@ void newBed()
 
     glPopMatrix();
 }
+
+void myKeyboardFunc( unsigned char key, int x, int y )
+{
+    std::cout<<eyeX<<" "<<eyeY<<" "<<eyeZ<<std::endl;
+    std::cout<<refX<<" "<<refY<<" "<<refZ<<std::endl;
+    cout<<"------"<<endl;
+    
+    switch ( key )
+    {
+        case 'w': // move eye point upwards along Y axis
+            eyeY+=0.5;
+            break;
+        case 's': // move eye point downwards along Y axis
+            eyeY-=0.5;
+            break;
+        case 'a': // move eye point left along X axis
+            eyeX-=0.5;
+            break;
+        case 'd': // move eye point right along X axis
+            eyeX+=0.5;
+            break;
+        case 'o':  //zoom out
+            eyeZ+=0.5;
+            break;
+        case 'i': //zoom in
+            eyeZ-=0.5;
+            break;
+        case 'q': //back to default eye point and ref point
+                eyeX=7.0; eyeY=2.0; eyeZ=15.0;
+                refX=0.0; refY=0.0; refZ=0.0;
+            break;
+        case 'j': // move ref point upwards along Y axis
+            refY+=0.5;
+            break;
+        case 'n': // move ref point downwards along Y axis
+            refY-=0.5;
+            break;
+        case 'b': // move ref point left along X axis
+            refX-=0.5;
+            break;
+        case 'm': // move eye point right along X axis
+            refX+=0.5;
+            break;
+        case 'k':  //move ref point away from screen/ along z axis
+            refZ+=0.5;
+            break;
+        case 'l': //move ref point towards screen/ along z axis
+            refZ-=0.5;
+            break;
+       
+        case 27:    // Escape key
+            exit(1);
+    }
+    
+    glutPostRedisplay();
+}
+
 
 void room()
 {
@@ -224,6 +281,8 @@ void display(void){
 
     glEnable(GL_LIGHTING);
     glEnable( GL_LIGHT0);
+    GLfloat light_position[] = { 5.0f, 5.0f, 15.0f, 1.0f }; 
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
     room();
     newBed();
     centerTable();
@@ -238,7 +297,7 @@ int main (int argc, char **argv)
 {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    glutInitWindowPosition(300,300);
+    glutInitWindowPosition(100,100);
     glutInitWindowSize(windowHeight, windowWidth);
     glutCreateWindow("Spider");
 
@@ -248,7 +307,7 @@ int main (int argc, char **argv)
 
     // glutReshapeFunc(fullScreen);
     glutDisplayFunc(display);
-    // glutKeyboardFunc(myKeyboardFunc);
+    glutKeyboardFunc(myKeyboardFunc);
     // glutIdleFunc(animate);
     glutMainLoop();
 
