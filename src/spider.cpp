@@ -3,17 +3,16 @@
 #include<GL/gl.h>
 #include<GL/glu.h>
 #include <stdlib.h>
+#include <math.h>
 #include <stdio.h>
 #include <iostream>
-#include <fstream>
-#include <vector>
 using namespace std;
 double windowHeight=1080, windowWidth=720;
 double eyeX=4 , eyeY=3.0, eyeZ=11.5, refX = -5.5, refY=-11.5,refZ=-4;
-std::vector<float> spiderVertices;
-float spiderScale = 0.1; // Scale factor for the spider model
-float spiderOffsetX = 3.0; // Offset from the center of the table
-float spiderOffsetY = 1.3; // Offset from the top of the table
+float spiderX = 0.0f;
+float spiderZ = 0.0f;
+bool spiderForward = true;
+float spiderSpeed = 0.05f;
 static GLfloat v_cube[8][3] =
 {
     {0.0, 0.0, 0.0}, //0
@@ -55,48 +54,11 @@ static void getNormal3p (GLfloat x1, GLfloat y1,GLfloat z1, GLfloat x2, GLfloat 
     glNormal3f(Nx,Ny,Nz);
 }
 
-bool loadOBJ(const char* filename, std::vector<float>& vertices) {
-    std::ifstream file(filename);
-    if (!file.is_open()) {
-        std::cerr << "Error: Unable to open file " << filename << std::endl;
-        return false;
-    }
-
-    // Read vertices from the OBJ file
-    std::string line;
-    while (std::getline(file, line)) {
-        if (line.substr(0, 2) == "v ") {
-            float x, y, z;
-            sscanf(line.c_str(), "v %f %f %f", &x, &y, &z);
-            vertices.push_back(x);
-            vertices.push_back(y);
-            vertices.push_back(z);
-        }
-    }
-
-    file.close();
-    return true;
-}
-
-
-void renderSpider() {
-    if (spiderVertices.empty()) {
-        return;
-    }
-
-    
-    glPushMatrix();
-    glTranslatef(spiderOffsetX, spiderOffsetY, 10.0); // Adjust position as needed
-    glScalef(spiderScale, spiderScale, spiderScale); // Apply scale
-    glColor3f(0.8, 0.2, 0.2); // Adjust color
-    glBegin(GL_TRIANGLES);
-    for (size_t i = 0; i < spiderVertices.size(); i += 3) {
-        glVertex3f(spiderVertices[i], spiderVertices[i + 1], spiderVertices[i + 2]);
-    }
-
-    // cout<<"reach"<<endl;
-    glEnd();
-    glPopMatrix();
+void drawCylinder(float radius, float height, int slices, int stacks) {
+    GLUquadricObj *obj = gluNewQuadric();
+    gluQuadricDrawStyle(obj, GLU_FILL);
+    gluCylinder(obj, radius, radius, height, slices, stacks);
+    gluDeleteQuadric(obj);
 }
 
 void drawCube1(GLfloat difX, GLfloat difY, GLfloat difZ, GLfloat ambX=0, GLfloat ambY=0, GLfloat ambZ=0, GLfloat shine=50)
@@ -174,6 +136,81 @@ void centerTable()
     glPopMatrix();
     glPopMatrix();
 }
+
+
+void drawSpider() {
+    glPushMatrix();
+    glTranslatef(3.0f + spiderX, 1.5f, 10.0f + spiderZ); 
+    glScalef(0.1f, 0.1f, 0.1f);
+    glRotatef(90, 0.0f, 1.0f, 0.0f);
+    glColor3f(0.0f, 0.0f, 0.0f); // Body color
+    glutSolidSphere(0.5, 20, 20);
+
+    // Leg segments
+    glColor3f(0.5f, 0.5f, 0.5f); // Leg color
+    for (int i = 0; i < 8; ++i) {
+        glPushMatrix();
+        float angle = (float)i * 45.0f;
+        if (i < 4)
+            glTranslatef(0.3f, 0.0f, 0.0f);
+        else
+            glTranslatef(-0.3f, 0.0f, 0.0f);
+
+        // First segment
+        // glPushMatrix();
+        glRotatef(angle, 0.0f, 1.0f, 0.0f);
+        glRotatef(-30.0f, 1.0f, 0.0f, 1.0f);
+        drawCylinder(0.1, 1.5, 10, 10);
+
+        // Hinge
+        glTranslatef(0.0f, 0.0f, 1.5f);
+        glutSolidSphere(0.1, 10, 10); // Hinge sphere
+
+        // Second segment
+        glTranslatef(0.0f, 0.0f, 0.0f); // Move to the second segment start position
+        glRotatef(45.0f, 1.0f, 0.0f, 1.0f); // Apply hinge rotation
+        drawCylinder(0.1, 1.5, 10, 10);
+        glPopMatrix();
+        // glPopMatrix();
+    }
+
+    // Eyes
+    glPushMatrix();
+    glColor3f(0.0f, 1.0f, 0.0f); // Green color for eyes
+    glTranslatef(0.2f, 0.2f, 0.3f);
+    glutSolidSphere(0.1, 10, 10);
+    glPopMatrix();
+
+    glPushMatrix();
+    glColor3f(0.0f, 1.0f, 0.0f); 
+    glTranslatef(-0.2f, 0.2f, 0.3f);
+    glutSolidSphere(0.1, 10, 10);
+    glPopMatrix();
+
+    glPopMatrix();
+}
+
+void animateSpider(int value) {
+    // Update spider position based on direction
+    if (spiderForward) {
+        spiderZ -= spiderSpeed;
+        if (spiderZ <= -3.0f)
+            spiderForward = false;
+    } else {
+        spiderZ += spiderSpeed;
+        if (spiderZ >= 3.0f)
+            spiderForward = true;
+    }
+
+    // Redraw the scene
+    glutPostRedisplay();
+
+    // Call the function again after a certain interval
+    glutTimerFunc(30, animateSpider, 0);
+}
+
+
+
 void newBed()
 {
     glPushMatrix();
@@ -257,12 +294,14 @@ void myKeyboardFunc( unsigned char key, int x, int y )
         case 'm': // move eye point right along X axis
             refX+=0.5;
             break;
+        
         case 'k':  //move ref point away from screen/ along z axis
             refZ+=0.5;
             break;
         case 'l': //move ref point towards screen/ along z axis
             refZ-=0.5;
             break;
+        
        
         case 27:    // Escape key
             exit(1);
@@ -270,6 +309,25 @@ void myKeyboardFunc( unsigned char key, int x, int y )
     
     glutPostRedisplay();
 }
+
+// void mySpecialKeyboardFunc(unsigned char key, int x, int y) {
+//     switch (key) {
+//         case GLUT_KEY_UP: // Up arrow key
+//             spiderZ -= 0.1f; // Move the spider backward
+//             break;
+//         case GLUT_KEY_DOWN: // Down arrow key
+//             spiderZ += 0.1f; // Move the spider forward
+//             break;
+//         case GLUT_KEY_LEFT: // Left arrow key
+//             spiderX -= 0.1f; // Move the spider left
+//             break;
+//         case GLUT_KEY_RIGHT: // Right arrow key
+//             spiderX += 0.1f; // Move the spider right
+//             break;
+//     }
+
+//     glutPostRedisplay();
+// }
 
 
 void room()
@@ -333,12 +391,9 @@ void display(void){
     GLfloat light_position[] = { 5.0f, 5.0f, 15.0f, 1.0f }; 
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
     room();
-    newBed();
+    // newBed();
     centerTable();
-
-    renderSpider();
-    
-
+    drawSpider();
     glDisable(GL_LIGHTING);
     
     glFlush();
@@ -352,9 +407,7 @@ int main (int argc, char **argv)
     glutInitWindowPosition(100,100);
     glutInitWindowSize(windowHeight, windowWidth);
     glutCreateWindow("Spider");
-     if (!loadOBJ("spider.obj", spiderVertices)) {
-        return 1;
-    }
+
     glShadeModel( GL_SMOOTH );
     glEnable( GL_DEPTH_TEST );
     glEnable(GL_NORMALIZE);
@@ -362,6 +415,8 @@ int main (int argc, char **argv)
     // glutReshapeFunc(fullScreen);
     glutDisplayFunc(display);
     glutKeyboardFunc(myKeyboardFunc);
+    // glutKeyboardFunc(mySpecialKeyboardFunc);
+    // glutTimerFunc(0, animateSpider, 0);
     // glutIdleFunc(animate);
     glutMainLoop();
 
