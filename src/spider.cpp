@@ -24,6 +24,10 @@ float legDirection = 1.0f;
 float theta=0.0f;
 
 
+bool fwdExtend=false;
+bool bckExtend=false;
+
+
 
 static GLfloat v_cube[8][3] =
 {
@@ -164,18 +168,48 @@ void drawSpider() {
     glColor3f(1.0f, 0.0f, 0.5f); // Leg color
     for (int i = 0; i < 8; ++i) {
         glPushMatrix();
+        legDirection*=-1;
+        
         float angle = (float)i * 45.0f;
         if (i < 4)
-            {
-        legDirection*=-1;
-                glTranslatef(0.3f, 0.0f, 0.0f);
-            }
+        {
+    
+            glTranslatef(0.3f, 0.0f, 0.0f);
+        }
         else
+        {
             glTranslatef(-0.3f, 0.0f, 0.0f);
+        }
 
-        // First segment
-        glRotatef(angle, 0.0f, 1.0f, 0.0f);
+
+        // cout<<"FWD:"<<fwdExtend<<endl;
+
+        
+        glRotatef(angle , 0.0f, 1.0f, 0.0f);
         glRotatef(-30.0f , 1.0f, 0.0f, 1.0f); // Apply leg animation
+        if(i%2==0)
+            glRotatef(0.35*legAngle, 0.0f, 1.0f, 0.0f);
+        else 
+            glRotatef(-0.35*legAngle, 0.0f, 1.0f, 0.0f);
+
+        if (fwdExtend ) {
+            if(i==0)
+                glRotatef(-30.0f, 0.0f, 1.0f, 0.0f);
+
+            if(i==7) 
+                glRotatef(+30.0f, 0.0f, 1.0f, 0.0f);
+            
+            glRotatef(15.0f, 1.0f, 0.0f, 1.0f);
+        }
+        if (bckExtend ) {
+            if(i==3)
+                glRotatef(+30.0f, 0.0f, 1.0f, 0.0f);
+
+            if(i==4) 
+                glRotatef(-30.0f, 0.0f, 1.0f, 0.0f);
+            
+            glRotatef(15.0f, 1.0f, 0.0f, 1.0f);
+        }
         drawCylinder(0.1, 1.5, 10, 10);
 
         // Hinge
@@ -185,30 +219,56 @@ void drawSpider() {
         // Second segment
         glTranslatef(0.0f, 0.0f, 0.0f); // Move to the second segment start position
         glRotatef(45.0f , 1.0f, 0.0f, 0.0f); // Apply leg animation
-        // if(legDirection)
-        glRotatef(45.0f + legAngle , 0.85f, 0.1f, 0.85f);
-        // else 
+        if(fwdExtend){
+            if(i==0 || i==7) glRotatef(-30.0f, 1.0f, 0.0f, 0.0f);
+
+        }
+        if(bckExtend){
+            if(i==3 || i==4) glRotatef(-30.0f, 1.0f, 0.0f, 0.0f);
+
+        }
+        glRotatef(45.0f + legAngle*0.75 , 0.85f, 0.1f, 0.85f);
+        
 
         // cout<<legAngle<<endl;
         drawCylinder(0.1, 1.5, 10, 10);
-        glPopMatrix();
-    }
 
-    // Eyes
-    // Eyes
-    // Eyes
+        
+        glPopMatrix();
+
+
+            }
+
+    // glPushMatrix();
+    // glColor3f(1.0f, 1.0f, 0.0f); // Green color for eyes
+    // glTranslatef(0.2f, 0.2f, 0.3f);
+    // glScalef(0.1f, 0.1f, 0.1f); // Scale down the cube
+    // drawCube1(0.0f, 1.0f, 0.0f); // Cube color
+    // glPopMatrix();
+
+    // glPushMatrix();
+    // glColor3f(1.0f, 1.0f, 0.0f); 
+    // glTranslatef(-0.2f, 0.2f, 0.3f);
+    // glScalef(0.1f, 0.1f, 0.1f); // Scale down the cube
+    // drawCube1(0.0f, 1.0f, 0.0f); // Cube color
+    // glPopMatrix();
+
+
+    glColor3f(1.0f, 1.0f, 1.0f);
+
     glPushMatrix();
-    glColor3f(0.0f, 1.0f, 0.0f); // Green color for eyes
-    glTranslatef(0.2f, 0.2f, 0.3f);
-    glScalef(0.1f, 0.1f, 0.1f); // Scale down the cube
-    drawCube1(0.0f, 1.0f, 0.0f); // Cube color
+    glTranslatef(-0.05f, 0.2f, 0.3f);
+    // glutSolidSphere(0.15, 10, 10);
+    glScalef(0.07f, 0.07f, 0.07f);
+    drawCube1(0.0f, 1.0f, 0.0f);
     glPopMatrix();
 
+    glColor3f(0.0f, 0.0f, 1.0f);
     glPushMatrix();
-    glColor3f(0.0f, 1.0f, 0.0f); 
-    glTranslatef(-0.2f, 0.2f, 0.3f);
-    glScalef(0.1f, 0.1f, 0.1f); // Scale down the cube
-    drawCube1(0.0f, 1.0f, 0.0f); // Cube color
+    glTranslatef(-0.30f, 0.2f, 0.3f);
+    // glutSolidSphere(0.15, 10, 10);
+    glScalef(0.07f, 0.07f, 0.07f);
+    drawCube1(0.0f, 1.0f, 0.0f);
     glPopMatrix();
 
     glPopMatrix();
@@ -219,9 +279,17 @@ void drawSpider() {
 void webThread(){
     if(!spiderY) return;
     glPushMatrix();
+    
+    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);    
+    glBegin(GL_QUADS);
+    glColor3f(1.0, 1.0, 1.0);
+    glEnd();
     glTranslatef(3.0f + spiderX, 1.5f + spiderY, 10.0f + spiderZ); 
     glRotatef(-90, 1.0f, 0.0f, 0.0f);
-    drawCylinder(0.01, 4, 10, 10);
+    drawCylinder(0.005, 4, 10, 10);
+
+    
+    
     glPopMatrix();
 
 
@@ -230,9 +298,10 @@ void webThread(){
 void animateSpiderLegs(int v) {
     if (isKeyHeld) {
         // Update leg angle
-        legAngle -= 2.5f * legDirection;
+        legAngle -= 1.5f * legDirection;
 
         // Reverse leg direction when reaching limits
+        //  if (legAngle > 5.0f || legAngle < -5.0f) {
         if (legAngle > 15.0f || legAngle < -15.0f) {
             legDirection *= -1.0f;
         }
@@ -344,6 +413,18 @@ void myKeyboardFunc( unsigned char key, int x, int y )
             spiderY-=verticalDisp;
             spiderY=max(spiderY,0.0f);
             break;
+        case 'z': //Rotate spider right
+            theta+=90;
+            break;
+        case 'x': //Rotate spider left
+            theta-=90;
+            break;
+        case '1': //Extend leg forward
+            fwdExtend=true;
+            break;
+        case '2': //Extend leg backward
+            bckExtend=true;
+            break;
 
         
         
@@ -367,10 +448,12 @@ void mySpecialKeyboardFunc(int key, int x, int y) {
             case GLUT_KEY_LEFT:
                 cout<<theta<<endl;
                 theta+=rotV;
+                isKeyHeld = true;
                 break;
             case GLUT_KEY_RIGHT:
                 cout<<theta<<endl;
                 theta-=rotV;
+                isKeyHeld = true;
                 // Do something for Shift + Right arrow key
                 break;
         }
@@ -407,6 +490,8 @@ void mySpecialKeyboardFunc(int key, int x, int y) {
 void mySpecialKeyboardUpFunc(int key, int x, int y) {
     isKeyHeld = false;
     isShiftPressed=false;
+    fwdExtend=false;
+    bckExtend=false;
 }
 
 
@@ -456,30 +541,36 @@ void room()
     glPopMatrix();
 }
 
-void display(void){
-     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+void display(void) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glMatrixMode( GL_PROJECTION );
+    glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60,1,1,100);
+    gluPerspective(60, 1, 1, 100);
 
-    glMatrixMode( GL_MODELVIEW );
+    glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(eyeX,eyeY,eyeZ,  refX,refY,refZ,  0,1,0);
+    gluLookAt(eyeX, eyeY, eyeZ, refX, refY, refZ, 0, 1, 0);
 
     glEnable(GL_LIGHTING);
-    glEnable( GL_LIGHT0);
-    GLfloat light_position[] = { 5.0f, 5.0f, 15.0f, 1.0f }; 
+    glEnable(GL_LIGHT0);
+
+    // Increase ambient light
+    GLfloat ambientLight[] = {0.5f, 0.5f, 0.5f, 1.0f};
+    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight);
+
+    // Adjust light position to illuminate the ceiling
+    GLfloat light_position[] = {5.0f, 10.0f, 5.0f, 1.0f};
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-   
     room();
     newBed();
     drawSpider();
     webThread();
     centerTable();
+
     glDisable(GL_LIGHTING);
-    
+
     glFlush();
     glutSwapBuffers();
 }

@@ -1474,27 +1474,27 @@ void display(void)
     
     glEnable(GL_LIGHTING);
     glEnable( GL_LIGHT0);
-    // lightOne();
-    // lightTwo();
-    // lampLight();
+    lightOne();
+    lightTwo();
+    lampLight();
     room();
-    // bed();
-    // bedsideDrawer();
-    // lamp();
-    // LinkinParkPoster();
-    // wallshelf();
+    bed();
+    bedsideDrawer();
+    lamp();
+    LinkinParkPoster();
+    wallshelf();
     newBed();
-    // wardrobe();
-    // cupboard();
+    wardrobe();
+    cupboard();
 
     centerTable();
-    // dressingTable();
-    // Clock();
-    // window();
-    // sphericalObject();
-    // lightBulb1();
-    // lightBulb2();
-    //lightBulb3();
+    dressingTable();
+    Clock();
+    window();
+    sphericalObject();
+    lightBulb1();
+    lightBulb2();
+    lightBulb3();
     glDisable(GL_LIGHTING);
     
     glFlush();
