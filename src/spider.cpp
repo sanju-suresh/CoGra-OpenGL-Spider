@@ -10,9 +10,21 @@ using namespace std;
 double windowHeight=1080, windowWidth=720;
 double eyeX=4 , eyeY=3.0, eyeZ=11.5, refX = -5.5, refY=-11.5,refZ=-4;
 float spiderX = 0.0f;
+float spiderY =0.0f;
 float spiderZ = 0.0f;
 bool spiderForward = true;
 float spiderSpeed = 0.05f;
+
+bool isKeyHeld =false;
+bool isShiftPressed=false;
+
+float legAngle = 0.0f; // Initial angle for leg movement
+float legDirection = 1.0f; 
+
+float theta=0.0f;
+
+
+
 static GLfloat v_cube[8][3] =
 {
     {0.0, 0.0, 0.0}, //0
@@ -100,7 +112,6 @@ void centerTable()
     glTranslatef(-0.7, 1.2, -1);
     glScalef(0.6, 0.05, 0.6); // Adjust scale as needed
     drawCube1(0.7, 0.55, 0.25, 0.25, 0.025, 0.25); // Adjust colors and dimensions
-
     glPopMatrix();
     
     // Table legs
@@ -134,32 +145,37 @@ void centerTable()
     glScalef(legThickness, legHeight, legThickness); // Adjust scale as needed
     drawCube1(0.5, 0.35, 0.05, 0.25, 0.025, 0.25); // Adjust colors and dimensions
     glPopMatrix();
+
     glPopMatrix();
 }
 
 
 void drawSpider() {
+    
+
     glPushMatrix();
-    glTranslatef(3.0f + spiderX, 1.5f, 10.0f + spiderZ); 
+    glTranslatef(3.0f + spiderX, 1.5f + spiderY, 10.0f + spiderZ); 
     glScalef(0.1f, 0.1f, 0.1f);
-    glRotatef(90, 0.0f, 1.0f, 0.0f);
-    glColor3f(0.0f, 0.0f, 0.0f); // Body color
+    glRotatef(180+theta, 0.0f, 1.0f, 0.0f);
+    glColor3d(0, 0, 0); // Body color
     glutSolidSphere(0.5, 20, 20);
 
     // Leg segments
-    glColor3f(0.5f, 0.5f, 0.5f); // Leg color
+    glColor3f(1.0f, 0.0f, 0.5f); // Leg color
     for (int i = 0; i < 8; ++i) {
         glPushMatrix();
         float angle = (float)i * 45.0f;
         if (i < 4)
-            glTranslatef(0.3f, 0.0f, 0.0f);
+            {
+        legDirection*=-1;
+                glTranslatef(0.3f, 0.0f, 0.0f);
+            }
         else
             glTranslatef(-0.3f, 0.0f, 0.0f);
 
         // First segment
-        // glPushMatrix();
         glRotatef(angle, 0.0f, 1.0f, 0.0f);
-        glRotatef(-30.0f, 1.0f, 0.0f, 1.0f);
+        glRotatef(-30.0f , 1.0f, 0.0f, 1.0f); // Apply leg animation
         drawCylinder(0.1, 1.5, 10, 10);
 
         // Hinge
@@ -168,46 +184,64 @@ void drawSpider() {
 
         // Second segment
         glTranslatef(0.0f, 0.0f, 0.0f); // Move to the second segment start position
-        glRotatef(45.0f, 1.0f, 0.0f, 1.0f); // Apply hinge rotation
+        glRotatef(45.0f , 1.0f, 0.0f, 0.0f); // Apply leg animation
+        // if(legDirection)
+        glRotatef(45.0f + legAngle , 0.85f, 0.1f, 0.85f);
+        // else 
+
+        // cout<<legAngle<<endl;
         drawCylinder(0.1, 1.5, 10, 10);
         glPopMatrix();
-        // glPopMatrix();
     }
 
+    // Eyes
+    // Eyes
     // Eyes
     glPushMatrix();
     glColor3f(0.0f, 1.0f, 0.0f); // Green color for eyes
     glTranslatef(0.2f, 0.2f, 0.3f);
-    glutSolidSphere(0.1, 10, 10);
+    glScalef(0.1f, 0.1f, 0.1f); // Scale down the cube
+    drawCube1(0.0f, 1.0f, 0.0f); // Cube color
     glPopMatrix();
 
     glPushMatrix();
     glColor3f(0.0f, 1.0f, 0.0f); 
     glTranslatef(-0.2f, 0.2f, 0.3f);
-    glutSolidSphere(0.1, 10, 10);
+    glScalef(0.1f, 0.1f, 0.1f); // Scale down the cube
+    drawCube1(0.0f, 1.0f, 0.0f); // Cube color
     glPopMatrix();
 
     glPopMatrix();
 }
 
-void animateSpider(int value) {
-    // Update spider position based on direction
-    if (spiderForward) {
-        spiderZ -= spiderSpeed;
-        if (spiderZ <= -3.0f)
-            spiderForward = false;
-    } else {
-        spiderZ += spiderSpeed;
-        if (spiderZ >= 3.0f)
-            spiderForward = true;
+
+
+void webThread(){
+    if(!spiderY) return;
+    glPushMatrix();
+    glTranslatef(3.0f + spiderX, 1.5f + spiderY, 10.0f + spiderZ); 
+    glRotatef(-90, 1.0f, 0.0f, 0.0f);
+    drawCylinder(0.01, 4, 10, 10);
+    glPopMatrix();
+
+
+}
+
+void animateSpiderLegs(int v) {
+    if (isKeyHeld) {
+        // Update leg angle
+        legAngle -= 2.5f * legDirection;
+
+        // Reverse leg direction when reaching limits
+        if (legAngle > 15.0f || legAngle < -15.0f) {
+            legDirection *= -1.0f;
+        }
+        glutPostRedisplay();
     }
 
-    // Redraw the scene
-    glutPostRedisplay();
-
-    // Call the function again after a certain interval
-    glutTimerFunc(30, animateSpider, 0);
+    glutTimerFunc(5, animateSpiderLegs, 0);
 }
+
 
 
 
@@ -252,57 +286,67 @@ void newBed()
     glPopMatrix();
 }
 
+
+
 void myKeyboardFunc( unsigned char key, int x, int y )
 {
-    // std::cout<<eyeX<<" "<<eyeY<<" "<<eyeZ<<std::endl;
-    // std::cout<<refX<<" "<<refY<<" "<<refZ<<std::endl;
-    // cout<<"------"<<endl;
-    
+    float val=0.3f;
+    float verticalDisp = 0.05f;
     switch ( key )
     {
+        
         case 'w': // move eye point upwards along Y axis
-            eyeY+=0.5;
+            eyeY+=val;
             break;
         case 's': // move eye point downwards along Y axis
-            eyeY-=0.5;
+            eyeY-=val;
             break;
         case 'a': // move eye point left along X axis
-            eyeX-=0.5;
+            eyeX-=val;
             break;
         case 'd': // move eye point right along X axis
-            eyeX+=0.5;
+            eyeX+=val;
             break;
         case 'o':  //zoom out
-            eyeZ+=0.5;
+            eyeZ+=1;
             break;
         case 'i': //zoom in
-            eyeZ-=0.5;
+            eyeZ-=1;
             break;
         case 'q': //back to default eye point and ref point
                 eyeX=7.0; eyeY=2.0; eyeZ=15.0;
                 refX=0.0; refY=0.0; refZ=0.0;
             break;
         case 'j': // move ref point upwards along Y axis
-            refY+=0.5;
+            refY+=val;
             break;
         case 'n': // move ref point downwards along Y axis
-            refY-=0.5;
+            refY-=val;
             break;
         case 'b': // move ref point left along X axis
-            refX-=0.5;
+            refX-=val;
             break;
         case 'm': // move eye point right along X axis
-            refX+=0.5;
+            refX+=val;
             break;
+        // case 'k':  //move ref point away from screen/ along z axis
+        //     refZ+=1;
+        //     break;
+        // case 'l': //move ref point towards screen/ along z axis
+        //     refZ-=1;
+        //     break;
+
+        case 'h': //move spider up
+            spiderY+=verticalDisp;
+            spiderY=min(spiderY,3.5f);
+            break;
+        case 'l': //move spider up
+            spiderY-=verticalDisp;
+            spiderY=max(spiderY,0.0f);
+            break;
+
         
-        case 'k':  //move ref point away from screen/ along z axis
-            refZ+=0.5;
-            break;
-        case 'l': //move ref point towards screen/ along z axis
-            refZ-=0.5;
-            break;
         
-       
         case 27:    // Escape key
             exit(1);
     }
@@ -310,24 +354,60 @@ void myKeyboardFunc( unsigned char key, int x, int y )
     glutPostRedisplay();
 }
 
-// void mySpecialKeyboardFunc(unsigned char key, int x, int y) {
-//     switch (key) {
-//         case GLUT_KEY_UP: // Up arrow key
-//             spiderZ -= 0.1f; // Move the spider backward
-//             break;
-//         case GLUT_KEY_DOWN: // Down arrow key
-//             spiderZ += 0.1f; // Move the spider forward
-//             break;
-//         case GLUT_KEY_LEFT: // Left arrow key
-//             spiderX -= 0.1f; // Move the spider left
-//             break;
-//         case GLUT_KEY_RIGHT: // Right arrow key
-//             spiderX += 0.1f; // Move the spider right
-//             break;
-//     }
+void mySpecialKeyboardFunc(int key, int x, int y) {
+    float val = 0.03f;
+    // Check if the Shift key is pressed along with the arrow key
+    isShiftPressed = glutGetModifiers() && GLUT_ACTIVE_SHIFT;
 
-//     glutPostRedisplay();
-// }
+    // If Shift is pressed along with the arrow key
+    if (isShiftPressed) {
+        int rotV=1.0f;
+        switch (key) {
+            
+            case GLUT_KEY_LEFT:
+                cout<<theta<<endl;
+                theta+=rotV;
+                break;
+            case GLUT_KEY_RIGHT:
+                cout<<theta<<endl;
+                theta-=rotV;
+                // Do something for Shift + Right arrow key
+                break;
+        }
+    } else {
+        // Handle normal arrow key press without Shift
+        switch (key) {
+            case GLUT_KEY_UP:
+                spiderZ -= val*cos(theta* (M_PI / 180.0));
+                spiderX -= val*sin(theta* (M_PI / 180.0) );
+                isKeyHeld = true; // Move the spider backward
+                break;
+            case GLUT_KEY_DOWN:
+                spiderZ += val*cos(theta* (M_PI / 180.0));
+                spiderX += val*sin(theta* (M_PI / 180.0) );
+                isKeyHeld = true; // Move the spider forward
+                break;
+            case GLUT_KEY_LEFT:
+                spiderX -= val*cos(theta* (M_PI / 180.0) );
+                spiderZ += val*sin(theta* (M_PI / 180.0) );
+                isKeyHeld = true; // Move the spider left
+                break;  
+            case GLUT_KEY_RIGHT:
+                spiderX += val*cos(theta* (M_PI / 180.0) );
+                spiderZ -= val*sin(theta* (M_PI / 180.0) );
+                isKeyHeld = true; // Move the spider right
+                break;
+        }
+        
+    }
+
+    glutPostRedisplay();
+}
+
+void mySpecialKeyboardUpFunc(int key, int x, int y) {
+    isKeyHeld = false;
+    isShiftPressed=false;
+}
 
 
 void room()
@@ -363,7 +443,8 @@ void room()
      glPushMatrix();
      glTranslatef(-4.5,5.1,0);
      glScalef(5, 0.1, 7);
-     drawCube1(1.0, 0.9, 0.8,  0.5,0.45,0.4);
+    //  glColor3f(1.0, 0.9, 0.8);
+     drawCube1(0.1, 0.8, 0.9,  0.5,0.45,0.4);
      glPopMatrix();
     
     // floor
@@ -390,10 +471,13 @@ void display(void){
     glEnable( GL_LIGHT0);
     GLfloat light_position[] = { 5.0f, 5.0f, 15.0f, 1.0f }; 
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+   
     room();
-    // newBed();
-    centerTable();
+    newBed();
     drawSpider();
+    webThread();
+    centerTable();
     glDisable(GL_LIGHTING);
     
     glFlush();
@@ -415,9 +499,17 @@ int main (int argc, char **argv)
     // glutReshapeFunc(fullScreen);
     glutDisplayFunc(display);
     glutKeyboardFunc(myKeyboardFunc);
+
+     glutSpecialFunc(mySpecialKeyboardFunc);
+
+     glutSpecialUpFunc(mySpecialKeyboardUpFunc);
     // glutKeyboardFunc(mySpecialKeyboardFunc);
     // glutTimerFunc(0, animateSpider, 0);
     // glutIdleFunc(animate);
+
+
+    // Register the animation function
+    glutTimerFunc(0, animateSpiderLegs, 0);
     glutMainLoop();
 
     
