@@ -434,7 +434,7 @@ void room()
      glPushMatrix();
      glTranslatef(-4.5,5.1,0);
      glScalef(5, 0.1, 7);
-     drawCube1(1.0, 0.9, 0.8,  0.5,0.45,0.4);
+     drawCube1(1.0, 0.9, 0.8,  0.8,0.8,0.8);
      glPopMatrix();
     
     // floor
@@ -1481,20 +1481,20 @@ void display(void)
     bed();
     bedsideDrawer();
     lamp();
-    LinkinParkPoster();
-    wallshelf();
-    newBed();
-    wardrobe();
-    cupboard();
+    // LinkinParkPoster();
+    // wallshelf();
+    // newBed();
+    // wardrobe();
+    // cupboard();
 
     centerTable();
-    dressingTable();
-    Clock();
-    window();
-    sphericalObject();
+    // dressingTable();
+    // Clock();
+    // window();
+    // sphericalObject();
     lightBulb1();
-    lightBulb2();
-    lightBulb3();
+    // lightBulb2();
+    //lightBulb3();
     glDisable(GL_LIGHTING);
     
     glFlush();
